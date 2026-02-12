@@ -311,9 +311,9 @@ describe("PaymentIntentRegistry", async function () {
     });
   });
 
-  // --- updateIntentStatus ---
+  // --- updateIntent ---
 
-  describe("updateIntentStatus", async function () {
+  describe("updateIntent", async function () {
     it("should update intent status and fields", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
@@ -324,7 +324,7 @@ describe("PaymentIntentRegistry", async function () {
         lastFailDetailHash: keccak256(toHex("timeout-detail")),
       });
 
-      await registry.write.updateIntentStatus([intentId, updateParams], {
+      await registry.write.updateIntent([intentId, updateParams], {
         account: executor.account,
       });
 
@@ -343,7 +343,7 @@ describe("PaymentIntentRegistry", async function () {
 
       const intentBefore = await registry.read.getIntent([intentId]);
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams()],
         { account: executor.account },
       );
@@ -352,18 +352,18 @@ describe("PaymentIntentRegistry", async function () {
       assert.ok(intentAfter.lastUpdatedAt >= intentBefore.lastUpdatedAt);
     });
 
-    it("should emit IntentStatusUpdated event", async function () {
+    it("should emit IntentUpdated event", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
       const updateParams = createUpdateParams({
         status: IntentStatus.PENDING,
       });
 
       await viem.assertions.emitWithArgs(
-        registry.write.updateIntentStatus([intentId, updateParams], {
+        registry.write.updateIntent([intentId, updateParams], {
           account: executor.account,
         }),
         registry,
-        "IntentStatusUpdated",
+        "IntentUpdated",
         [
           intentId,
           updateParams.status,
@@ -377,7 +377,7 @@ describe("PaymentIntentRegistry", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
       const updateParams = createUpdateParams({ deadline: 7200n });
 
-      await registry.write.updateIntentStatus([intentId, updateParams], {
+      await registry.write.updateIntent([intentId, updateParams], {
         account: executor.account,
       });
 
@@ -389,7 +389,7 @@ describe("PaymentIntentRegistry", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
       await assert.rejects(
-        registry.write.updateIntentStatus(
+        registry.write.updateIntent(
           [intentId, createUpdateParams({ deadline: 0n })],
           { account: executor.account },
         ),
@@ -399,13 +399,13 @@ describe("PaymentIntentRegistry", async function () {
     it("should revert for CONFIRMED intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.CONFIRMED })],
         { account: executor.account },
       );
 
       await assert.rejects(
-        registry.write.updateIntentStatus(
+        registry.write.updateIntent(
           [intentId, createUpdateParams({ status: IntentStatus.QUOTING })],
           { account: executor.account },
         ),
@@ -415,7 +415,7 @@ describe("PaymentIntentRegistry", async function () {
     it("should revert for FAILED intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [
           intentId,
           createUpdateParams({
@@ -427,7 +427,7 @@ describe("PaymentIntentRegistry", async function () {
       );
 
       await assert.rejects(
-        registry.write.updateIntentStatus(
+        registry.write.updateIntent(
           [intentId, createUpdateParams({ status: IntentStatus.QUOTING })],
           { account: executor.account },
         ),
@@ -442,7 +442,7 @@ describe("PaymentIntentRegistry", async function () {
       });
 
       await assert.rejects(
-        registry.write.updateIntentStatus(
+        registry.write.updateIntent(
           [intentId, createUpdateParams({ status: IntentStatus.QUOTING })],
           { account: executor.account },
         ),
@@ -453,7 +453,7 @@ describe("PaymentIntentRegistry", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
       await assert.rejects(
-        registry.write.updateIntentStatus(
+        registry.write.updateIntent(
           [intentId, createUpdateParams()],
           { account: other.account },
         ),
@@ -464,7 +464,7 @@ describe("PaymentIntentRegistry", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
       // CREATED -> QUOTING
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.QUOTING, deadline: 3600n })],
         { account: executor.account },
       );
@@ -472,7 +472,7 @@ describe("PaymentIntentRegistry", async function () {
       assert.equal(intent.status, IntentStatus.QUOTING);
 
       // QUOTING -> ROUTED
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.ROUTED, deadline: 3600n })],
         { account: executor.account },
       );
@@ -480,7 +480,7 @@ describe("PaymentIntentRegistry", async function () {
       assert.equal(intent.status, IntentStatus.ROUTED);
 
       // ROUTED -> SENT
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.SENT, deadline: 3600n })],
         { account: executor.account },
       );
@@ -488,7 +488,7 @@ describe("PaymentIntentRegistry", async function () {
       assert.equal(intent.status, IntentStatus.SENT);
 
       // SENT -> CONFIRMED (terminal)
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.CONFIRMED, deadline: 3600n })],
         { account: executor.account },
       );
@@ -538,7 +538,7 @@ describe("PaymentIntentRegistry", async function () {
     it("should cancel a QUOTING intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.QUOTING })],
         { account: executor.account },
       );
@@ -554,7 +554,7 @@ describe("PaymentIntentRegistry", async function () {
     it("should revert for SENT intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.SENT })],
         { account: executor.account },
       );
@@ -569,7 +569,7 @@ describe("PaymentIntentRegistry", async function () {
     it("should revert for CONFIRMED intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [intentId, createUpdateParams({ status: IntentStatus.CONFIRMED })],
         { account: executor.account },
       );
@@ -584,7 +584,7 @@ describe("PaymentIntentRegistry", async function () {
     it("should revert for FAILED intent", async function () {
       const { registry, intentId } = await deployAndCreateIntent();
 
-      await registry.write.updateIntentStatus(
+      await registry.write.updateIntent(
         [
           intentId,
           createUpdateParams({

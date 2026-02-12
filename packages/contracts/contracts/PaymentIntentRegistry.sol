@@ -26,7 +26,7 @@ contract PaymentIntentRegistry is PaymentIntentStorage, Ownable {
         uint64 deadline
     );
 
-    event IntentStatusUpdated(
+    event IntentUpdated(
         uint256 indexed intentId,
         IntentStatus status,
         bytes32 chosenProviderRefHash,
@@ -91,7 +91,7 @@ contract PaymentIntentRegistry is PaymentIntentStorage, Ownable {
         );
     }
 
-    function updateIntentStatus(
+    function updateIntent(
         uint256 intentId,
         UpdateIntentParams calldata payload
     ) external onlyAuthorizedExecutor {
@@ -99,19 +99,19 @@ contract PaymentIntentRegistry is PaymentIntentStorage, Ownable {
 
         require(
             payload.deadline > MIN_DEADLINE,
-            "PaymentIntentRegistry::updateIntentStatus: Deadline too small"
+            "PaymentIntentRegistry::updateIntent: Deadline too small"
         );
 
         require(
             payload.chosenProviderRefHash != bytes32(0),
-            "PaymentIntentRegistry::updateIntentStatus: Invalid hash"
+            "PaymentIntentRegistry::updateIntent: Invalid hash"
         );
 
         require(
             intent.status != IntentStatus.CONFIRMED &&
                 intent.status != IntentStatus.FAILED &&
                 intent.status != IntentStatus.CANCELLED,
-            "PaymentIntentRegistry::updateIntentStatus: Intent is in terminal status"
+            "PaymentIntentRegistry::updateIntent: Intent is in terminal status"
         );
 
         intent.status = payload.status;
@@ -122,7 +122,7 @@ contract PaymentIntentRegistry is PaymentIntentStorage, Ownable {
         intent.lastUpdatedAt = uint64(block.timestamp);
         intent.deadline = payload.deadline;
 
-        emit IntentStatusUpdated(
+        emit IntentUpdated(
             intentId,
             payload.status,
             payload.chosenProviderRefHash,
