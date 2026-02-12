@@ -1,0 +1,16 @@
+{
+  "name": "resibo",
+  "author": "",
+  "license": "ISC",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "contracts:build": "pnpm --filter @resibo/contracts build",
+    "contracts:test": "pnpm --filter @resibo/contracts test",
+    "contracts:deploy": "pnpm --filter @resibo/contracts deploy",
+    "contracts:verify": "pnpm --filter @resibo/contracts verify"
+  },
+  "keywords": [],
+  "packageManager": "pnpm@10.15.0"
+}
