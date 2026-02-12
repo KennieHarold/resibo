@@ -54,8 +54,7 @@ contract PaymentIntentRegistry is PaymentIntentStorage, Ownable {
         );
         require(
             payload.recipientHash != bytes32(0) &&
-                payload.metadataHash != bytes32(0) &&
-                payload.chosenProviderRefHash != bytes32(0),
+                payload.metadataHash != bytes32(0),
             "PaymentIntentRegistry::createIntent: Invalid hash"
         );
         require(

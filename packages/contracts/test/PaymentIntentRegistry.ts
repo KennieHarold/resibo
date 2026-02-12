@@ -251,20 +251,6 @@ describe("PaymentIntentRegistry", async function () {
       );
     });
 
-    it("should revert with zero chosenProviderRefHash", async function () {
-      const registry = await deployAndSetup();
-      const params = {
-        ...createValidParams(),
-        chosenProviderRefHash: zeroHash,
-      };
-
-      await assert.rejects(
-        registry.write.createIntent([params], {
-          account: executor.account,
-        }),
-      );
-    });
-
     it("should revert with deadline equal to MIN_DEADLINE", async function () {
       const registry = await deployAndSetup();
       const params = { ...createValidParams(), deadline: 1n };
